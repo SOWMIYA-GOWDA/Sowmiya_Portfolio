@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "AI Nexus | Sowmiya P",
+  title: "Sowmiya P | AI/ML Engineer",
   description: "AI/ML Engineer Portfolio",
 };
 
