@@ -36,71 +36,76 @@ export default function TimelineRoadmap({ items, onOpen }) {
   const drawProgress = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   if (!items?.length) return null;
-  if (!containerWidth) {
-    return <div ref={wrapperRef} className="w-full" style={{ minHeight: 400 }} />;
-  }
-
-  const columns = Math.max(1, Math.floor((containerWidth + GAP_X) / (CARD_WIDTH + GAP_X)));
-  const rows = Math.ceil(items.length / columns);
 
   const cellW = CARD_WIDTH + GAP_X;
   const cellH = CARD_HEIGHT + GAP_Y;
-  const gridWidth = columns * cellW - GAP_X;
   const topPadding = CARD_HEIGHT / 2 + ROW_BOB;
-  const totalHeight = CARD_HEIGHT + ROW_BOB * 2 + (rows - 1) * cellH;
 
-  const positions = items.map((_, index) => {
-    const row = Math.floor(index / columns);
-    const colInRow = index % columns;
-    const reversed = row % 2 === 1;
-    const col = reversed ? columns - 1 - colInRow : colInRow;
-    // alternate bob up/down so cards never sit in a perfectly straight row
-    const bob = colInRow % 2 === 0 ? -ROW_BOB : ROW_BOB;
-    return {
-      x: col * cellW + CARD_WIDTH / 2,
-      y: topPadding + row * cellH + bob,
-      row,
-    };
-  });
+  let columns = 1;
+  let rows = 0;
+  let gridWidth = 0;
+  let totalHeight = 400;
+  let positions = [];
+  let roadPath = "";
 
-  // Snake path: smooth wavy curves through every card center, in sequence
-  let roadPath = `M ${positions[0].x} ${positions[0].y}`;
-  positions.forEach((point, index) => {
-    if (index === 0) return;
-    const prev = positions[index - 1];
-    const sameRow = point.row === prev.row;
-    const dir = index % 2 === 0 ? 1 : -1;
-    const wave = CURVE_WAVE * dir;
+  if (containerWidth > 0) {
+    columns = Math.max(1, Math.floor((containerWidth + GAP_X) / (CARD_WIDTH + GAP_X)));
+    rows = Math.ceil(items.length / columns);
+    gridWidth = columns * cellW - GAP_X;
+    totalHeight = CARD_HEIGHT + ROW_BOB * 2 + (rows - 1) * cellH;
 
-    if (sameRow) {
-      const midX = (prev.x + point.x) / 2;
-      roadPath += ` C ${midX} ${prev.y + wave}, ${midX} ${point.y + wave}, ${point.x} ${point.y}`;
-    } else {
-      const midY = (prev.y + point.y) / 2;
-      roadPath += ` C ${prev.x + wave} ${midY}, ${point.x + wave} ${midY}, ${point.x} ${point.y}`;
-    }
-  });
+    positions = items.map((_, index) => {
+      const row = Math.floor(index / columns);
+      const colInRow = index % columns;
+      const reversed = row % 2 === 1;
+      const col = reversed ? columns - 1 - colInRow : colInRow;
+      const bob = colInRow % 2 === 0 ? -ROW_BOB : ROW_BOB;
+      return {
+        x: col * cellW + CARD_WIDTH / 2,
+        y: topPadding + row * cellH + bob,
+        row,
+      };
+    });
+
+    roadPath = `M ${positions[0].x} ${positions[0].y}`;
+    positions.forEach((point, index) => {
+      if (index === 0) return;
+      const prev = positions[index - 1];
+      const sameRow = point.row === prev.row;
+      const dir = index % 2 === 0 ? 1 : -1;
+      const wave = CURVE_WAVE * dir;
+
+      if (sameRow) {
+        const midX = (prev.x + point.x) / 2;
+        roadPath += ` C ${midX} ${prev.y + wave}, ${midX} ${point.y + wave}, ${point.x} ${point.y}`;
+      } else {
+        const midY = (prev.y + point.y) / 2;
+        roadPath += ` C ${prev.x + wave} ${midY}, ${point.x + wave} ${midY}, ${point.x} ${point.y}`;
+      }
+    });
+  }
 
   return (
     <div ref={wrapperRef} className="w-full">
       <section
         ref={containerRef}
         className="relative mx-auto"
-        style={{ width: `${gridWidth}px`, height: `${totalHeight}px` }}
+        style={{
+          width: containerWidth ? `${gridWidth}px` : "100%",
+          height: `${totalHeight}px`,
+        }}
       >
-        {/* Snake path SVG */}
-        <div className="absolute inset-0 z-0">
+        {containerWidth > 0 && (
+          <>
+            {/* Snake path SVG */}
+            <div className="absolute inset-0 z-0">
           <svg
             viewBox={`0 0 ${gridWidth} ${totalHeight}`}
             preserveAspectRatio="none"
             className="h-full w-full overflow-visible"
           >
             <defs>
-              <linearGradient id={gradientId} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={totalHeight}>
-                <stop offset="0%" stopColor="#3b82f6" />
-                <stop offset="50%" stopColor="#8b5cf6" />
-                <stop offset="100%" stopColor="#22d3ee" />
-              </linearGradient>
+              
               <filter id={glowId} x="-100%" y="-100%" width="300%" height="300%">
                 <feGaussianBlur stdDeviation="3" result="blur" />
                 <feMerge>
@@ -180,6 +185,8 @@ export default function TimelineRoadmap({ items, onOpen }) {
             );
           })}
         </div>
+          </>
+        )}
       </section>
     </div>
   );

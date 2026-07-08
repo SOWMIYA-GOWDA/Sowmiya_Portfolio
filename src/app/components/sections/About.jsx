@@ -167,11 +167,11 @@ const [selectedCertificate, setSelectedCertificate] = useState(null);
         duration: .5,
     }}
 
-    className="mt-32"
+    className="relative mt-32"
 
 >
 
-    <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div
           className="
           absolute
@@ -308,30 +308,18 @@ const [selectedCertificate, setSelectedCertificate] = useState(null);
         </div>
 
         <Link
-
-            href="/certifications"
-
-            className="
-            hidden
-
-            md:flex
-
-            items-center
-
-            gap-2
-
-            text-cyan-300
-
-            hover:text-cyan-200"
-        
-        >
-
-            View All
-
-            <ArrowRight size={18} />
-
-        </Link>
-
+    href="/certifications"
+    className="
+        px-6
+        py-3
+        rounded-full
+        border
+        border-cyan-500/20
+        hover:bg-cyan-500/10
+        transition"
+>
+    View All →
+</Link>
     </div>
 
     <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">

@@ -8,7 +8,6 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import TimelineRoadmap from "../components/ui/TimelineRoadmap";
 import CertificateModal from "../components/ui/CertificateModal";
-import NeuralBackground from "../components/ui/NeuralBackground";
 
 export default function CertificationsPage() {
 
@@ -36,8 +35,6 @@ export default function CertificationsPage() {
         >
 
             {/* Background Glow */}
-
-           <NeuralBackground/>
 
             <div
                 className="
